@@ -6,6 +6,7 @@ import { DeviceGroupDropdownContainer as DeviceGroupDropdown } from 'components/
 import { Btn, RefreshBar, PageContent, ContextMenu } from 'components/shared';
 import { DeviceDetailsContainer } from './flyouts/deviceDetails';
 import { DeviceNewContainer } from './flyouts/deviceNew';
+import { SIMManagementContainer } from './flyouts/SIMManagement';
 import { svgs } from 'utilities';
 
 import './devices.css';
@@ -39,6 +40,7 @@ export class Devices extends Component {
 
   closeFlyout = () => this.setState(closedFlyoutState);
 
+  openSIMManagement = () => this.setState({ openFlyoutName: 'sim-management' });
   openNewDeviceFlyout = () => this.setState({ openFlyoutName: 'new-device' });
 
   onSoftSelectChange = ({ id }) => this.setState({
@@ -64,12 +66,14 @@ export class Devices extends Component {
       t: this.props.t
     };
     const detailsFlyoutOpen = this.state.openFlyoutName === 'details';
+    const simManagementFlyoutOpen = this.state.openFlyoutName === 'sim-management';
     const newDeviceFlyoutOpen = this.state.openFlyoutName === 'new-device';
 
     return [
       <ContextMenu key="context-menu">
         <DeviceGroupDropdown />
         { this.state.contextBtns }
+        <Btn svg={svgs.simmanagement} onClick={this.openSIMManagement}>{t('devices.flyouts.SIMManagement.title')}</Btn>
         <Btn svg={svgs.plus} onClick={this.openNewDeviceFlyout}>{t('devices.flyouts.new.contextMenuName')}</Btn>
       </ContextMenu>,
       <PageContent className="devices-container" key="page-content">
@@ -83,6 +87,7 @@ export class Devices extends Component {
         { !error && <DevicesGrid {...gridProps} /> }
         <Btn onClick={this.changeDeviceGroup}>Refresh Device Groups</Btn>
         { detailsFlyoutOpen && <DeviceDetailsContainer onClose={this.closeFlyout} device={entities[this.state.selectedDeviceId]} /> }
+        { simManagementFlyoutOpen && <SIMManagementContainer onClose={this.closeFlyout} /> }
         { newDeviceFlyoutOpen && <DeviceNewContainer onClose={this.closeFlyout} /> }
       </PageContent>
     ];
