@@ -127,7 +127,6 @@ const initialState = {
 };
 
 const updateDeviceGroupsReducer = (state, { payload, fromAction }) => {
-console.log('group payload in update', payload)
   const { entities: { deviceGroups } } = normalize(payload, deviceGroupListSchema);
   return update(state, {
     deviceGroups: { $set: deviceGroups },
@@ -227,7 +226,6 @@ export const getDeviceGroupsError = state =>
   getError(getAppReducer(state), epics.actionTypes.fetchDeviceGroups);
 export const getDeviceGroupsPendingStatus = state =>
   getPending(getAppReducer(state), epics.actionTypes.fetchDeviceGroups);
-
 export const getDeviceGroupFilters = state => getAppReducer(state).deviceGroupFilters;
 export const getDeviceGroupFiltersError = state =>
   getError(getAppReducer(state), epics.actionTypes.fetchDeviceGroupFilters);

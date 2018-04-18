@@ -10,6 +10,29 @@ export const toDeviceGroupsModel = (response = {}) => (response.items || [])
     'eTag': 'eTag'
   }));
 
+  export const toDeviceGroupsRequestModel = (request = {}) => {
+    const res = reshape(request, {
+      'displayName': 'DisplayName',
+      'conditions': 'Conditions'
+    });
+
+    res.Conditions.map(condition => reshape(condition, {
+      'key': 'Key',
+     'operator': 'Operator',
+     'value': 'Value'
+    }));
+
+    return res;
+  }
+
+  export const toDeviceGroupFiltersModel = (response = {}) => {
+    console.log('before reshape', response);
+    reshape(response, {
+      'reported': 'reported',
+      'tags': 'tags'
+  })};
+
+
 export const prepareLogoResponse = (responseWrapper) => {
   const returnObj = {};
   const xhr = responseWrapper.xhr;
@@ -28,7 +51,7 @@ export const prepareLogoResponse = (responseWrapper) => {
 }
 
 export const toSolutionSettingThemeModel = (response = {}) => reshape(response, {
-  'AzureMapsKey': 'azureMapsKey',
+  'azureMapsKey': 'azureMapsKey',
   'description': 'description',
   'name': 'name'
 });
