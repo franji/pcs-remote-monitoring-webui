@@ -87,9 +87,8 @@ export class MapPanel extends Component {
       || (props.azureMapsKey && !this.props.azureMapsKey)
       || (mounting && props.azureMapsKey && deviceIds.length > 0);
 
-    if (this.map && deviceIds.length > 0) {
-      const geoLocatedDevices = this.extractGeoLocatedDevices(props.devices);
-
+    const geoLocatedDevices = this.extractGeoLocatedDevices(props.devices || []);
+    if (this.map && Object.keys(geoLocatedDevices).length > 0) {
       const { normal, warning, critical }  = this.devicesToPins(geoLocatedDevices, props.devicesInAlarm)
 
       if (this.map) {
@@ -174,7 +173,7 @@ export class MapPanel extends Component {
         </PanelContent>
         { showOverlay && <PanelOverlay><Indicator /></PanelOverlay> }
         { !mapKeyIsPending && !this.props.azureMapsKey && <PanelError>{t('dashboard.panels.map.notConfiguredError')}</PanelError> }
-        { error && <PanelError>{t(error.message)}</PanelError> }
+        { error && <PanelError>{ t('errorFormat', { message: t(error.message, { message: error.errorMessage }) }) }</PanelError> }
       </Panel>
     );
   }
