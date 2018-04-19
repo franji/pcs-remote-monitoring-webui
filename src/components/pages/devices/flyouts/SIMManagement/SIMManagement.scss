@@ -6,10 +6,9 @@
 .sim-management-container {
   @include rem-font-size(14px);
 
-  .sim-management-header { @include rem-fallback(padding, 12px, 0px); }
+  .sim-management-label { @include rem-fallback(padding, 12px, 0px); }
 
-  .sim-management-descr { @include rem-fallback(padding, 12px, 0px); }
-
-   a { color: #FFFFFF; }
-
+  @include themify($themes) {
+    a { color: themed('colorHighest'); }
+  }
 }
