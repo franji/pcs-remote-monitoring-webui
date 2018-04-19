@@ -3,8 +3,8 @@
 import React, { Component } from 'react';
 import { RulesGrid } from './rulesGrid';
 import { DeviceGroupDropdownContainer as DeviceGroupDropdown } from 'components/app/deviceGroupDropdown';
-import { Btn, RefreshBar, PageContent, ContextMenu } from 'components/shared';
-import { RuleDetails, RuleNew } from './flyouts';
+import { AjaxError, Btn, RefreshBar, PageContent, ContextMenu } from 'components/shared';
+import { RuleDetails, RuleEditor } from './flyouts';
 import { svgs } from 'utilities';
 
 import './rules.css';
@@ -23,7 +23,7 @@ export class Rules extends Component {
       contextBtns: null
     };
 
-    if (!this.props.lastUpdated) {
+    if (!this.props.lastUpdated && !this.props.error) {
       this.props.fetchRules();
     }
   }
@@ -36,7 +36,7 @@ export class Rules extends Component {
   }
 
   changeDeviceGroup = () => {
-    const { changeDeviceGroup, deviceGroups }  = this.props;
+    const { changeDeviceGroup, deviceGroups } = this.props;
     changeDeviceGroup(deviceGroups[1].id);
   }
 
@@ -56,8 +56,17 @@ export class Rules extends Component {
 
   getSoftSelectId = ({ id }) => id;
 
-  render () {
-    const { t, rules, error, isPending, lastUpdated, entities, fetchRules } = this.props;
+  render() {
+    const {
+      t,
+      rules,
+      error,
+      isPending,
+      lastUpdated,
+      entities,
+      fetchRules,
+      deviceGroups
+    } = this.props;
     const gridProps = {
       rowData: isPending ? undefined : rules || [],
       onSoftSelectChange: this.onSoftSelectChange,
@@ -69,21 +78,15 @@ export class Rules extends Component {
     return [
       <ContextMenu key="context-menu">
         <DeviceGroupDropdown />
-        { this.state.contextBtns }
+        {this.state.contextBtns}
         <Btn svg={svgs.plus} onClick={this.openNewRuleFlyout}>New rule</Btn>
       </ContextMenu>,
       <PageContent className="rules-container" key="page-content">
         <RefreshBar refresh={fetchRules} time={lastUpdated} isPending={isPending} t={t} />
-        {
-          !!error &&
-          <span className="status">
-            { t('errorFormat', { message: t(error.message, { message: error.errorMessage }) }) }
-          </span>
-        }
-        { !error && <RulesGrid {...gridProps} /> }
-        <Btn onClick={this.changeDeviceGroup}>Refresh Device Groups</Btn>
-        { this.state.openFlyoutName === 'details' && <RuleDetails onClose={this.closeFlyout} rule={entities[this.state.selectedRuleId]} /> }
-        { this.state.openFlyoutName === 'newRule' && <RuleNew onClose={this.closeFlyout} t={this.props.t} /> }
+        { !!error && <AjaxError t={t} error={error} /> }
+        {!error && <RulesGrid {...gridProps} />}
+        {this.state.openFlyoutName === 'details' && <RuleDetails onClose={this.closeFlyout} rule={entities[this.state.selectedRuleId]} />}
+        {this.state.openFlyoutName === 'newRule' && <RuleEditor onClose={this.closeFlyout} t={this.props.t} deviceGroups={deviceGroups} />}
       </PageContent>
     ];
   }
