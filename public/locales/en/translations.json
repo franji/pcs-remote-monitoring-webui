@@ -307,8 +307,16 @@
       },
       "SIMManagement": {
         "title": "SIM Management",
-        "header": "As a Telefónica IoT customer you have the advantage of adding this feature to enrich automatically your Azure Remote Monitoring Solution with the connectivity data available in Telefonica IoT Connectivity Platform (Network Information, Data Consumption & Network Based Location).",
-        "description": "This feature is in Preview. In order to sync your connectivity data into Azure Remote Monitoring Solution, please fill a request at <1><0>url</0></1>, select the option “Azure Remote Monitoring” and include your contact data and we will automatically activate your account. If you are not a Telefónica client yet and you want to enjoy this or other IoT Connectivity Cloud Ready services, you can contact as at <1><0>url</0></1> and select the option “Connectivity”; we will be glad to help you."
+        "provider" : "Provider",
+        "header":{
+          "telefonica": "As a Telefónica IoT customer you have the advantage of adding this feature to enrich automatically your Azure Remote Monitoring Solution with the connectivity data available in Telefónica IoT Connectivity Platform (Network Information, Data Consumption & Network Based Location)."
+        },
+        "description": {
+          "telefonica": "This feature is in Preview. In order to sync your connectivity data into Azure Remote Monitoring Solution, please fill a request at <1><0>url</0></1>, select the option “Azure Remote Monitoring” and include your contact data and we will automatically activate your account. If you are not a Telefónica client yet and you want to enjoy this or other IoT Connectivity Cloud Ready services, you can contact as at <1><0>url</0></1> and select the option “Connectivity”; we will be glad to help you."
+        },
+        "operator":{
+          "telefonica": "Telefónica"
+        }
       }
     }
   },

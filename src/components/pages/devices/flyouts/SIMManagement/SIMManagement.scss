@@ -8,7 +8,42 @@
 
   .sim-management-label { @include rem-fallback(padding, 12px, 0px); }
 
+  .sim-management-label-selector { @include rem-fallback(padding, 12px, 0px); }
+
+  .sim-management-selector {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sim-management-dropdown {
+    width: 70%;
+
+    .Select-menu-outer {
+      margin-top: 1px !important;
+      border-top: none !important;
+    }
+
+    .Select-control {
+      border: none !important;
+      height: 100% !important;
+
+      .Select-placeholder {
+        display: flex;
+        align-items: center;
+      }
+
+      .Select-input {
+        height: 100%;
+
+        input { height: 100%; }
+      }
+    }
+  }
+
   @include themify($themes) {
     a { color: themed('colorHighest'); }
+
   }
 }
