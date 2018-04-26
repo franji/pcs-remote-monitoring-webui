@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 import { DevicesGrid } from './devicesGrid';
 import { DeviceGroupDropdownContainer as DeviceGroupDropdown } from 'components/app/deviceGroupDropdown';
+import { ManageDeviceGroupsBtnContainer as ManageDeviceGroupsBtn } from 'components/app/manageDeviceGroupsBtn';
 import { AjaxError, Btn, RefreshBar, PageContent, ContextMenu } from 'components/shared';
 import { DeviceDetailsContainer } from './flyouts/deviceDetails';
 import { DeviceNewContainer } from './flyouts/deviceNew';
@@ -75,6 +76,7 @@ export class Devices extends Component {
         { this.state.contextBtns }
         <Btn svg={svgs.simmanagement} onClick={this.openSIMManagement}>{t('devices.flyouts.SIMManagement.title')}</Btn>
         <Btn svg={svgs.plus} onClick={this.openNewDeviceFlyout}>{t('devices.flyouts.new.contextMenuName')}</Btn>
+        <ManageDeviceGroupsBtn />
       </ContextMenu>,
       <PageContent className="devices-container" key="page-content">
         <RefreshBar refresh={fetchDevices} time={lastUpdated} isPending={isPending} t={t} />
