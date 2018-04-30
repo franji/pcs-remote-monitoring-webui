@@ -5,16 +5,17 @@ import React, { Component } from 'react';
 import { AjaxError, Indicator } from 'components/shared';
 import {
   Panel,
+  PanelContent,
+  PanelError,
   PanelHeader,
   PanelHeaderLabel,
-  PanelContent,
-  PanelOverlay,
-  PanelError
+  PanelMsg,
+  PanelOverlay
 } from 'components/pages/dashboard/panel';
 import { RulesGrid, rulesColumnDefs } from 'components/pages/rules/rulesGrid';
 import { translateColumnDefs } from 'utilities';
 
-export class AlarmsPanel extends Component {
+export class AlertsPanel extends Component {
 
   constructor(props) {
     super(props);
@@ -34,21 +35,26 @@ export class AlarmsPanel extends Component {
   }
 
   render() {
-    const { t, alarms, isPending, error } = this.props;
+    const { t, alerts, isPending, error } = this.props;
     const gridProps = {
       columnDefs: translateColumnDefs(t, this.columnDefs),
-      rowData: alarms,
+      rowData: alerts,
+      suppressFlyouts: true,
       t
     };
-    const showOverlay = isPending && !alarms.length;
+    const showOverlay = isPending && !alerts.length;
     return (
-      <Panel className="alarms-panel-container">
+      <Panel className="alerts-panel-container">
         <PanelHeader>
-          <PanelHeaderLabel>{t('dashboard.panels.alarms.header')}</PanelHeaderLabel>
+          <PanelHeaderLabel>{t('dashboard.panels.alerts.header')}</PanelHeaderLabel>
           { !showOverlay && isPending && <Indicator size="small" /> }
         </PanelHeader>
         <PanelContent>
           <RulesGrid {...gridProps} />
+          {
+            (!showOverlay && alerts.length === 0)
+              && <PanelMsg>{t('dashboard.noData')}</PanelMsg>
+          }
         </PanelContent>
         { showOverlay && <PanelOverlay><Indicator /></PanelOverlay> }
         { error && <PanelError><AjaxError t={t} error={error} /></PanelError> }

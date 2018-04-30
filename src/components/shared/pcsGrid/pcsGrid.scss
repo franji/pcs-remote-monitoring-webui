@@ -48,7 +48,6 @@ $checkboxPadding: 8px;
   }
 
   .ag-cell {
-    text-transform: capitalize;
     border: none !important;
     height: $rowHeight;
     line-height: $rowHeight;
@@ -118,6 +117,8 @@ $checkboxPadding: 8px;
     .ag-body-viewport,
     .ag-row-even,
     .ag-row-odd { background-color: transparent; }
+
+    .ag-body-viewport { overflow-y: hidden !important; }
 
     .ag-cell {
       background-color: themed('colorGridRowBackground');
