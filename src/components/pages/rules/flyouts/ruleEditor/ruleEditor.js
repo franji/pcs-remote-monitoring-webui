@@ -16,6 +16,7 @@ import {
   AjaxError,
   Indicator
 } from 'components/shared';
+import { EMPTY_FIELD_VAL } from 'components/shared/pcsGrid/pcsGridConfig';
 import { SeverityRenderer } from 'components/shared/cellRenderers';
 import {
   Validator,
@@ -25,16 +26,17 @@ import {
 import Flyout from 'components/shared/flyout';
 import { IoTHubManagerService, TelemetryService } from 'services';
 import { toNewRuleRequestModel } from 'services/models';
+import Config from 'app.config';
 
 import './ruleEditor.css';
 
 const Section = Flyout.Section;
-const severityLevels = ['Critical', 'Warning', 'Info'];
 const calculations = ['Average', 'Instant'];
+// Represented in milliSeconds
 const timePeriodOptions = [
-  { label: '1', value: '00:01:00' },
-  { label: '5', value: '00:05:00' },
-  { label: '10', value: '00:10:00' }
+  { label: '1', value: '60000' },
+  { label: '5', value: '300000' },
+  { label: '10', value: '600000' }
 ];
 const operatorOptions = [
   { label: '>', value: 'GreaterThan' },
@@ -62,7 +64,7 @@ const newRule = {
   calculation: '',
   timePeriod: '',
   conditions: [newCondition()], // Start with one condition
-  severity: severityLevels[0],
+  severity: Config.ruleSeverity.critical,
   enabled: true
 }
 
@@ -70,8 +72,7 @@ export class RuleEditor extends LinkedComponent {
 
   constructor(props) {
     super(props);
-    const { rule } = props;
-    const formData = rule ? rule : newRule;
+    const formData = newRule;
     this.state = {
       error: undefined,
       fieldOptions: [],
@@ -82,7 +83,20 @@ export class RuleEditor extends LinkedComponent {
   }
 
   componentDidMount() {
-    if (this.props.rule) this.getDeviceCountAndFields(this.props.rule.groupId);
+    const { rule } = this.props;
+    if (rule) {
+      this.setState({
+        formData: rule,
+        devicesAffected: rule.count && rule.count.response ? rule.count.response : EMPTY_FIELD_VAL
+      });
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { rule } = nextProps;
+    if (rule) {
+      this.setState({ formData: rule });
+    }
   }
 
   componentWillUnmount() {
@@ -110,15 +124,26 @@ export class RuleEditor extends LinkedComponent {
     event.preventDefault();
     const { onClose, insertRule, updateRule } = this.props;
     const requestProps = { ...this.state.formData };
+    const { devicesAffected } = this.state;
     if (requestProps.calculation === calculations[1]) requestProps.timePeriod = '';
     if (this.formIsValid()) {
       this.setState({ isPending: true });
       if (this.subscription) this.subscription.unsubscribe();
+      const countProps = {
+        count: {
+          response: devicesAffected,
+          error: undefined
+        },
+        lastTrigger: {
+          response: undefined,
+          erroe: undefined
+        }
+      };
       if (this.props.rule) { // If rule object exist then update the existing rule
         this.subscription = TelemetryService.updateRule(this.props.rule.id, toNewRuleRequestModel(requestProps))
           .subscribe(
             (updatedRule) => {
-              updateRule(updatedRule);
+              updateRule({ ...updatedRule, ...countProps });
               this.setState({ isPending: false });
               onClose();
             },
@@ -128,7 +153,7 @@ export class RuleEditor extends LinkedComponent {
         this.subscription = TelemetryService.createRule(toNewRuleRequestModel(requestProps))
           .subscribe(
             (createdRule) => {
-              insertRule(createdRule);
+              insertRule({ ...createdRule, ...countProps });
               this.setState({ isPending: false });
               onClose();
             },
@@ -202,7 +227,7 @@ export class RuleEditor extends LinkedComponent {
       .check(
         timePeriod => this.calculationLink.value === calculations[0] ? Validator.notEmpty(timePeriod) : true,
         this.props.t('rules.flyouts.ruleEditor.validation.required')
-      );;
+      );
     this.conditionsLink = this.formDataLink.forkTo('conditions').withValidator(requiredValidator);
     this.severityLink = this.formDataLink.forkTo('severity');
     //todo toggle button didn't support link
@@ -331,18 +356,18 @@ export class RuleEditor extends LinkedComponent {
               <FormLabel>{t('rules.flyouts.ruleEditor.severityLevel')}</FormLabel>
               <Radio
                 link={this.severityLink}
-                value={severityLevels[0]}>
-                <SeverityRenderer value={severityLevels[0]} context={{ t }} />
+                value={Config.ruleSeverity.critical}>
+                <SeverityRenderer value={Config.ruleSeverity.critical} context={{ t }} />
               </Radio>
               <Radio
                 link={this.severityLink}
-                value={severityLevels[1]}>
-                <SeverityRenderer value={severityLevels[1]} context={{ t }} />
+                value={Config.ruleSeverity.warning}>
+                <SeverityRenderer value={Config.ruleSeverity.warning} context={{ t }} />
               </Radio>
               <Radio
                 link={this.severityLink}
-                value={severityLevels[2]}>
-                <SeverityRenderer value={severityLevels[2]} context={{ t }} />
+                value={Config.ruleSeverity.info}>
+                <SeverityRenderer value={Config.ruleSeverity.info} context={{ t }} />
               </Radio>
             </FormGroup>
           </Section.Content>

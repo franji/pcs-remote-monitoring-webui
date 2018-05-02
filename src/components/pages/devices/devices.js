@@ -5,17 +5,13 @@ import { DevicesGrid } from './devicesGrid';
 import { DeviceGroupDropdownContainer as DeviceGroupDropdown } from 'components/app/deviceGroupDropdown';
 import { ManageDeviceGroupsBtnContainer as ManageDeviceGroupsBtn } from 'components/app/manageDeviceGroupsBtn';
 import { AjaxError, Btn, RefreshBar, PageContent, ContextMenu } from 'components/shared';
-import { DeviceDetailsContainer } from './flyouts/deviceDetails';
 import { DeviceNewContainer } from './flyouts/deviceNew';
 import { SIMManagementContainer } from './flyouts/SIMManagement';
 import { svgs } from 'utilities';
 
 import './devices.css';
 
-const closedFlyoutState = {
-  openFlyoutName: undefined,
-  selectedDeviceId: undefined
-};
+const closedFlyoutState = { openFlyoutName: undefined };
 
 export class Devices extends Component {
 
@@ -34,41 +30,25 @@ export class Devices extends Component {
     }
   }
 
-  changeDeviceGroup = () => {
-    const { changeDeviceGroup, deviceGroups } = this.props;
-    changeDeviceGroup(deviceGroups[1].id);
-  }
-
   closeFlyout = () => this.setState(closedFlyoutState);
 
   openSIMManagement = () => this.setState({ openFlyoutName: 'sim-management' });
   openNewDeviceFlyout = () => this.setState({ openFlyoutName: 'new-device' });
-
-  onSoftSelectChange = ({ id }) => this.setState({
-    openFlyoutName: 'details',
-    selectedDeviceId: id
-  });
 
   onContextMenuChange = contextBtns => this.setState({
     contextBtns,
     openFlyoutName: undefined
   });
 
-  getSoftSelectId = ({ id }) => id;
-
   render() {
-    const { t, devices, deviceGroupError, deviceError, isPending, lastUpdated, entities, fetchDevices } = this.props;
+    const { t, devices, deviceGroupError, deviceError, isPending, lastUpdated, fetchDevices } = this.props;
     const gridProps = {
       rowData: isPending ? undefined : devices || [],
-      onSoftSelectChange: this.onSoftSelectChange,
       onContextMenuChange: this.onContextMenuChange,
-      softSelectId: this.state.selectedDeviceId,
-      getSoftSelectId: this.getSoftSelectId,
       t: this.props.t
     };
-    const detailsFlyoutOpen = this.state.openFlyoutName === 'details';
-    const simManagementFlyoutOpen = this.state.openFlyoutName === 'sim-management';
     const newDeviceFlyoutOpen = this.state.openFlyoutName === 'new-device';
+    const simManagementFlyoutOpen = this.state.openFlyoutName === 'sim-management';
 
     const error = deviceGroupError || deviceError;
 
@@ -84,9 +64,8 @@ export class Devices extends Component {
         <RefreshBar refresh={fetchDevices} time={lastUpdated} isPending={isPending} t={t} />
         { !!error && <AjaxError t={t} error={error} /> }
         { !error && <DevicesGrid {...gridProps} /> }
-        { detailsFlyoutOpen && <DeviceDetailsContainer onClose={this.closeFlyout} device={entities[this.state.selectedDeviceId]} /> }
-        { simManagementFlyoutOpen && <SIMManagementContainer onClose={this.closeFlyout} /> }
         { newDeviceFlyoutOpen && <DeviceNewContainer onClose={this.closeFlyout} /> }
+        { simManagementFlyoutOpen && <SIMManagementContainer onClose={this.closeFlyout} /> }
       </PageContent>
     ];
   }
