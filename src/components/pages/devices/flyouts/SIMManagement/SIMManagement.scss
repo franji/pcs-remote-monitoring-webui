@@ -7,6 +7,8 @@
   @include rem-fallback(margin-top, 24px);
   @include rem-font-size(14px);
 
+  .hide-border { border: none; }
+
   .sim-management-label { @include rem-fallback(padding, 12px, 0px); }
 
   .sim-management-label-title { @include rem-fallback(padding, 12px, 0px); }
