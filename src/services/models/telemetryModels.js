@@ -1,54 +1,75 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 import { camelCaseReshape, getItems } from 'utilities';
+import update from 'immutability-helper';
 
 export const toRulesModel = (response = {}) => getItems(response)
   .map(toRuleModel);
 
-export const toRuleModel = (response = {}) => camelCaseReshape(response, {
-  'id': 'id',
-  'conditions': 'conditions',
-  'dateCreated': 'dateCreated',
-  'dateModified': 'dateModified',
-  'description': 'description',
-  'eTag': 'eTag',
-  'enabled': 'enabled',
-  'groupId': 'groupId',
-  'name': 'name',
-  'severity': 'severity',
-  'calculation': 'calculation',
-  'timePeriod': 'timePeriod',
-  'action.type': 'type'
-});
-
-// TODO: Double check the response from alarmsByRule and alarms, might only need one model
-export const toAlarmsModel = (response = {}) => getItems(response)
-  .map((alarm = {}) => camelCaseReshape(alarm, {
-    'rule.id': 'ruleId',
-    'created': 'created',
-    'status': 'status',
-    'rule.severity': 'severity',
-    'rule.description': 'ruleDescription',
-    'deviceId': 'deviceId',
+export const toRuleModel = (response = {}) => {
+  const model = camelCaseReshape(response, {
+    'id': 'id',
+    'conditions': 'conditions',
     'dateCreated': 'dateCreated',
     'dateModified': 'dateModified',
     'description': 'description',
-    'id': 'id',
-    'groupId': 'groupId'
-  }));
+    'eTag': 'eTag',
+    'enabled': 'enabled',
+    'groupId': 'groupId',
+    'name': 'name',
+    'severity': 'severity',
+    'calculation': 'calculation',
+    'timePeriod': 'timePeriod',
+    'action.type': 'type'
+  });
+  return update(model, {
+    severity: { $set: (model.severity || '').toLowerCase() }
+  });
+};
 
-export const toActiveAlarmsModel = (response = {}) => getItems(response)
-  .map((alarm = {}) => camelCaseReshape(alarm, {
-    'rule.id': 'ruleId',
-    'count': 'count',
-    'created': 'created',
-    'status': 'status',
-    'rule.severity': 'severity',
-    'rule.description': 'description'
-  }));
+// TODO: Double check the response from alertsByRule and alerts, might only need one model
+export const toAlertsModel = (response = {}) => getItems(response)
+  .map((alert = {}) => {
+    const model = camelCaseReshape(alert, {
+      'rule.id': 'ruleId',
+      'created': 'created',
+      'status': 'status',
+      'rule.severity': 'severity',
+      'rule.description': 'ruleDescription',
+      'deviceId': 'deviceId',
+      'dateCreated': 'dateCreated',
+      'dateModified': 'dateModified',
+      'description': 'description',
+      'id': 'id',
+      'groupId': 'groupId'
+    });
+    return update(model, {
+      severity: { $set: (model.severity || '').toLowerCase() },
+      status: { $set: (model.status || '').toLowerCase() }
+    });
+  });
 
-export const toAlarmsForRuleModel = (response = {}) => getItems(response)
-  .map((alarm = {}) => camelCaseReshape(alarm, {
+export const toActiveAlertsModel = (response = {}) => getItems(response)
+  .map((alert = {}) => {
+    const model = camelCaseReshape(alert, {
+      'rule.id': 'ruleId',
+      'count': 'count',
+      'created': 'created',
+      'status': 'status',
+      'rule.severity': 'severity',
+      'rule.description': 'description'
+    });
+    return update(model, {
+      severity: { $set: (model.severity || '').toLowerCase() },
+      status: { $set: (model.status || '').toLowerCase() }
+    });
+  });
+
+export const toAlertsForRuleModel = (response = {}) => getItems(response)
+  .map(toAlertForRuleModel);
+
+export const toAlertForRuleModel = (alert = {}) => {
+  const model = camelCaseReshape(alert, {
     'id': 'id',
     'dateCreated': 'dateCreated',
     'dateModified': 'dateModified',
@@ -59,7 +80,11 @@ export const toAlarmsForRuleModel = (response = {}) => getItems(response)
     'groupId': 'groupId',
     'status': 'status',
     'rule.id': 'ruleId'
-  }));
+  });
+  return update(model, {
+    status: { $set: (model.status || '').toLowerCase() }
+  });
+};
 
 export const toMessagesModel = (response = {}) => getItems(response)
   .map((message = {}) => camelCaseReshape(message, {

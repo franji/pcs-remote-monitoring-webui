@@ -57,7 +57,7 @@ export class Devices extends Component {
   getSoftSelectId = ({ id }) => id;
 
   render() {
-    const { t, devices, error, isPending, lastUpdated, entities, fetchDevices } = this.props;
+    const { t, devices, deviceGroupError, deviceError, isPending, lastUpdated, entities, fetchDevices } = this.props;
     const gridProps = {
       rowData: isPending ? undefined : devices || [],
       onSoftSelectChange: this.onSoftSelectChange,
@@ -69,6 +69,8 @@ export class Devices extends Component {
     const detailsFlyoutOpen = this.state.openFlyoutName === 'details';
     const simManagementFlyoutOpen = this.state.openFlyoutName === 'sim-management';
     const newDeviceFlyoutOpen = this.state.openFlyoutName === 'new-device';
+
+    const error = deviceGroupError || deviceError;
 
     return [
       <ContextMenu key="context-menu">

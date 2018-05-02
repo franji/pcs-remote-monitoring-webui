@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 import React, { Component } from 'react';
-import { Observable } from 'rxjs';
 import { Route, Redirect, Switch } from 'react-router-dom';
+import { schema, normalize } from 'normalizr';
+import update from 'immutability-helper';
 import moment from 'moment';
 
+import Config from 'app.config';
 import { Summary } from './summary/summary';
 import { RuleDetails } from './ruleDetails/ruleDetails';
 import { JobDetails } from './jobDetails/jobDetails';
@@ -14,6 +16,10 @@ import { TelemetryService, IoTHubManagerService } from 'services';
 
 import './maintenance.css';
 
+const alertSchema = new schema.Entity('alerts');
+const alertListSchema = new schema.Array(alertSchema);
+
+// TODO: Refactor some of the naming in this file related to rules, alert, and alerts
 export class Maintenance extends Component {
 
   constructor(props) {
@@ -23,6 +29,7 @@ export class Maintenance extends Component {
       timeInterval: 'PT1H',
 
       alertsIsPending: true,
+      alertEntities: {},
       alerts: [],
       alertsError: undefined,
       alertCount: undefined,
@@ -69,33 +76,43 @@ export class Maintenance extends Component {
     });
     this.clearSubscriptions();
     this.subscriptions.push(
-      TelemetryService.getActiveAlarms(params)
-        .flatMap(alarms => alarms)
-        .flatMap(alarm =>
-          // Get the last occurrence of the alarm and the counts per alarm status
-          TelemetryService.getAlarmsForRule(alarm.ruleId, { ...params, order: 'desc' })
-            .flatMap(alarms =>
-              Observable.from(alarms)
-                .reduce(
-                  (acc, { status }) => ({ ...acc, [status]: (acc[status] || 0) + 1 }),
-                  {}
-                )
-                .map(countPerStatus => ({ alarms, lastOccurrence: (alarms[0] || {}).dateCreated, countPerStatus }))
-            )
-            .map(statsPerStatus => ({ ...alarm, ...statsPerStatus }))
+      TelemetryService.getActiveAlerts(params)
+        .flatMap(alerts => alerts)
+        .flatMap(alert =>
+          // Get the last occurrence of the alert and the counts per alert status
+          TelemetryService.getAlertsForRule(alert.ruleId, { ...params, order: 'desc' })
+            .map(alerts => ({
+              ...alert,
+              alerts,
+              lastOccurrence: (alerts[0] || {}).dateCreated
+            }))
         )
         .toArray()
         .subscribe(
-          alerts => {
-            const { criticalAlertCount, warningAlertCount } = alerts.reduce(
-              (acc, { severity, alarms }) => ({
-                criticalAlertCount: acc.criticalAlertCount + (severity === 'critical' ? alarms.length : 0),
-                warningAlertCount: acc.warningAlertCount + (severity === 'warning' ? alarms.length : 0)
-              }),
-              { criticalAlertCount: 0, warningAlertCount: 0 }
+          alertedRules => {
+            const { criticalAlertCount, warningAlertCount, alertEntities } = alertedRules.reduce(
+              (acc, alertedRule) => {
+                const { entities: { alerts }, result } = normalize(alertedRule.alerts, alertListSchema);
+                alertedRule.alerts = result;
+                return update(acc, {
+                  criticalAlertCount: {
+                    $set: acc.criticalAlertCount + (alertedRule.severity === Config.ruleSeverity.critical ? alertedRule.alerts.length : 0)
+                  },
+                  warningAlertCount: {
+                    $set: acc.warningAlertCount + (alertedRule.severity === Config.ruleSeverity.warning ? alertedRule.alerts.length : 0)
+                  },
+                  alertEntities: { $merge: alerts }
+                });
+              },
+              {
+                criticalAlertCount: 0,
+                warningAlertCount: 0,
+                alertEntities: {}
+              }
             );
             this.setState({
-              alerts,
+              alerts: alertedRules,
+              alertEntities,
               alertsIsPending: false,
               lastUpdated: moment(),
               criticalAlertCount,
@@ -147,12 +164,25 @@ export class Maintenance extends Component {
     this.subscriptions = [];
   }
 
+  setAlertStatus = (alerts, newStatus) => {
+    // Create the object to update the component state
+    const updates = alerts.reduce((acc, { id }) => update(acc, {
+      [id]: { $set:
+        { status: { $set: newStatus } }
+      }
+    }), {});
+    this.setState(update(this.state, {
+      alertEntities: updates
+    }));
+  };
+
   onTimeIntervalChange = (timeInterval) => this.setState({ timeInterval }, () => this.getData());
 
   render() {
     const { rulesEntities, deviceEntities, rulesIsPending, theme, t, history } = this.props;
     const {
       alerts,
+      alertEntities,
       alertCount,
       criticalAlertCount,
       warningAlertCount,
@@ -168,16 +198,25 @@ export class Maintenance extends Component {
     } = this.state;
 
     // Add the rule name to the rules data by merging from the redux store
-    const alertsWithRulename = alerts.map((alert) => ({
-      ...alert,
-      name: (rulesEntities[alert.ruleId] || {}).name,
-      counts: {
-        open: alert.countPerStatus.open || 0,
-        closed: alert.countPerStatus.closed || 0,
-        acknowledged: alert.countPerStatus.acknowledged || 0,
-        total: alert.alarms.length
-      }
-    }));
+    const alertsWithRulename = alerts.map((alert) => {
+      const countPerStatus = alert.alerts.reduce(
+        (acc, id) => {
+          const { status } = alertEntities[id];
+          return { ...acc, [status]: (acc[status] || 0) + 1 }
+        },
+        {}
+      );
+      return {
+        ...alert,
+        name: (rulesEntities[alert.ruleId] || {}).name,
+        counts: {
+          open: countPerStatus.open || 0,
+          closed: countPerStatus.closed || 0,
+          acknowledged: countPerStatus.acknowledged || 0,
+          total: alert.alerts.length
+        }
+      };
+    });
 
     const generalProps = {
       t,
@@ -223,6 +262,8 @@ export class Maintenance extends Component {
               {...generalProps}
               {...alertProps}
               {...routeProps}
+              setAlertStatus={this.setAlertStatus}
+              alertEntities={alertEntities}
               theme={theme}
               rulesEntities={rulesEntities}
               deviceEntities={deviceEntities} />
