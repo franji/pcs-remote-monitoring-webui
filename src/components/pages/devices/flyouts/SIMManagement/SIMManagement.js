@@ -65,7 +65,8 @@ export class SIMManagement extends LinkedComponent {
                   link={this.providerLink} />
                 </div>
             </div>
-            { !!provider &&
+            {
+              !!provider &&
               <div>
                 <div className="sim-management-label-title">{t(`devices.flyouts.SIMManagement.summaryHeader`)}</div>
                 <div className="sim-management-label">{t(`devices.flyouts.SIMManagement.header.${provider}`)}</div>
