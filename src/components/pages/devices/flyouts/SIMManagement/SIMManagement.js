@@ -3,10 +3,11 @@
 import React, { Component } from 'react';
 import { Trans } from 'react-i18next';
 import { Link } from 'react-router-dom'
-import { Select } from 'components/shared';
-
+import { LinkedComponent } from 'utilities';
 
 import {
+  Select,
+  FormControl,
   Flyout,
   FlyoutHeader,
   FlyoutTitle,
@@ -22,23 +23,16 @@ const optionValues = [
   { value: 'telefonica'}
 ];
 
-const initialState = {
-  provider: 'telefonica'
-};
 
-export class SIMManagement extends Component {
+export class SIMManagement extends LinkedComponent {
 
   constructor(props) {
     super(props);
-    this.state = initialState;
-  }
-
-  onChange = (propOnChange) => ({ target: { value: { value } = {} } = {} }) => {
-    this.setState( { provider: value } );
+    this.state = {provider: ''};
+    this.providerLink  = this.linkTo('provider').map(({ value }) => value);
   }
 
   render() {
-
     const { t, onClose } = this.props;
     const { provider } = this.state;
 
@@ -57,20 +51,28 @@ export class SIMManagement extends Component {
           <div className="sim-management-container">
             <div className="sim-management-selector">
               <div className="sim-management-label-selector">{t(`devices.flyouts.SIMManagement.provider`)}</div>
-              <Select
+              <div className="sim-management-dropdown">
+                <FormControl
+                  type="select"
                   className="sim-management-dropdown"
                   options={options}
-                  value={provider}
                   searchable={false}
                   clearable={false}
-                onChange={this.onChange(this.props.onChange)} />
+                  placeholder={t('devices.flyouts.SIMManagement.select')}
+                  link={this.providerLink} />
+                </div>
             </div>
-            <div className="sim-management-label">{t(`devices.flyouts.SIMManagement.header.${provider}`)}</div>
-            <div className="sim-management-label">
-              <Trans i18nKey={`devices.flyouts.SIMManagement.description.${provider}`}>
-                Feature is... <Link to={simManagementUrl} target="_blank">{simManagementUrl}</Link> ...your account.
-              </Trans>
-            </div>
+            { !!provider &&
+              <div>
+                <div className="sim-management-label-title">{t(`devices.flyouts.SIMManagement.summaryHeader`)}</div>
+                <div className="sim-management-label">{t(`devices.flyouts.SIMManagement.header.${provider}`)}</div>
+                <div className="sim-management-label-desctiption">
+                  <Trans i18nKey={`devices.flyouts.SIMManagement.description.${provider}`}>
+                    Feature is... <Link to={simManagementUrl} target="_blank">{t(`devices.flyouts.SIMManagement.here`)}</Link> ...your account.
+                  </Trans>
+                </div>
+              </div>
+            }
           </div>
         </FlyoutContent>
       </Flyout>
