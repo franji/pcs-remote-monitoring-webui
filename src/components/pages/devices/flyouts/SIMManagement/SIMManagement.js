@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-import React, { Component } from 'react';
+import React from 'react';
 import { Trans } from 'react-i18next';
 import { Link } from 'react-router-dom'
-import { LinkedComponent } from 'utilities';
 
+import { LinkedComponent } from 'utilities';
 import {
-  Select,
   FormControl,
   Flyout,
   FlyoutHeader,
@@ -20,16 +19,20 @@ import './SIMManagement.css';
 const simManagementUrl = 'https://iot.telefonica.com/contact';
 
 const optionValues = [
-  { value: 'telefonica'}
+  { value: 'telefonica' }
 ];
-
 
 export class SIMManagement extends LinkedComponent {
 
   constructor(props) {
     super(props);
-    this.state = {provider: ''};
-    this.providerLink  = this.linkTo('provider').map(({ value }) => value);
+
+    this.state = {
+      provider: ''
+    };
+
+    this.providerLink = this.linkTo('provider')
+      .map(({ value }) => value);
   }
 
   render() {
