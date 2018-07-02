@@ -15,14 +15,20 @@
 
   .sim-management-label-desctiption {
     white-space: pre-wrap;
-    @include rem-fallback(padding, 12px, 0px);
+    @include rem-fallback(padding, 16px, 0px);
   }
 
   .sim-management-selector {
     align-items: center;
-    display: flex;
     justify-content: space-between;
     width: 100%;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    padding-bottom: 44px;
+  }
+
+  .btn-toolbar {
+    padding-top: 44px;
   }
 
   .sim-management-label-selector {

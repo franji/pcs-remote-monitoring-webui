@@ -4,8 +4,14 @@ import React from 'react';
 import { Trans } from 'react-i18next';
 import { Link } from 'react-router-dom'
 
-import { LinkedComponent } from 'utilities';
-import { FormControl } from 'components/shared';
+import { LinkedComponent, svgs } from 'utilities';
+
+import {
+  FormControl,
+  Btn,
+  BtnToolbar
+} from 'components/shared';
+
 import Flyout from 'components/shared/flyout';
 
 import './SIMManagement.css';
@@ -24,16 +30,18 @@ export class SIMManagement extends LinkedComponent {
     super(props);
 
     this.state = {
-      provider: ''
+      provider: '',
+      isPending: false
     };
 
-    this.providerLink = this.linkTo('provider')
-      .map(({ value }) => value);
+    this.providerLink = this.linkTo('provider').map(({ value }) => value);
   }
+
+  showProvider = () => this.setState({ isPending: true });
 
   render() {
     const { t, onClose } = this.props;
-    const { provider } = this.state;
+    const { provider, isPending } = this.state;
 
     const options = optionValues.map(({ value }) => ({
       label: t(`devices.flyouts.SIMManagement.operator.${value}`),
@@ -61,7 +69,7 @@ export class SIMManagement extends LinkedComponent {
             </div>
           </div>
           {
-            !!provider &&
+            !!isPending &&
             <Section.Container className="hide-border" collapsable={false}>
               <Section.Header>{t(`devices.flyouts.SIMManagement.summaryHeader`)}</Section.Header>
               <Section.Content>
@@ -74,6 +82,12 @@ export class SIMManagement extends LinkedComponent {
               </Section.Content>
             </Section.Container>
           }
+          <BtnToolbar>
+            {!isPending && <Btn primary={true} disabled={!provider} onClick={this.showProvider} type="submit">{t('devices.flyouts.new.apply')}</Btn>}
+            {!isPending && <Btn svg={svgs.cancelX} onClick={onClose}>{t('devices.flyouts.new.cancel')}</Btn>}
+            {isPending && <Btn svg={svgs.cancelX} onClick={onClose}>{t('devices.flyouts.new.close')}</Btn>}
+          </BtnToolbar>
+
         </Flyout.Content>
       </Flyout.Container>
     );
