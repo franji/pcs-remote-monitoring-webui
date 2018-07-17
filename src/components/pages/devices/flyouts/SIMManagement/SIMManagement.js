@@ -84,10 +84,8 @@ export class SIMManagement extends LinkedComponent {
           }
           <BtnToolbar>
             {!isPending && <Btn primary={true} disabled={!provider} onClick={this.showProvider} type="submit">{t('devices.flyouts.new.apply')}</Btn>}
-            {!isPending && <Btn svg={svgs.cancelX} onClick={onClose}>{t('devices.flyouts.new.cancel')}</Btn>}
-            {isPending && <Btn svg={svgs.cancelX} onClick={onClose}>{t('devices.flyouts.new.close')}</Btn>}
+            <Btn svg={svgs.cancelX} onClick={onClose}>{isPending ? t('devices.flyouts.new.close') : t('devices.flyouts.new.cancel')}</Btn>
           </BtnToolbar>
-
         </Flyout.Content>
       </Flyout.Container>
     );
