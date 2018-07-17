@@ -5,7 +5,6 @@
 
 .sim-management-container {
   @include rem-fallback(margin-top, 24px);
-
   @include rem-font-size(14px);
 
   .hide-border { border: none; }
@@ -28,9 +27,7 @@
     padding-bottom: 44px;
   }
 
-  .btn-toolbar {
-    @include rem-fallback(padding-top, 44px);
-  }
+  .btn-toolbar { @include rem-fallback(padding-top, 44px); }
 
   .sim-management-label-selector {
     width: 50%;
