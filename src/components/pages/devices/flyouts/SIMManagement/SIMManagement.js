@@ -74,7 +74,7 @@ export class SIMManagement extends LinkedComponent {
               <Section.Header>{t(`devices.flyouts.SIMManagement.summaryHeader`)}</Section.Header>
               <Section.Content>
                 <div>{t(`devices.flyouts.SIMManagement.header.${provider}`)}</div>
-                <div className="sim-management-label-desctiption">
+                <div className="sim-management-label-description">
                   <Trans i18nKey={`devices.flyouts.SIMManagement.description.${provider}`}>
                     Feature is... <Link to={simManagementUrl} target="_blank">{t(`devices.flyouts.SIMManagement.here`)}</Link> ...your account.
                   </Trans>

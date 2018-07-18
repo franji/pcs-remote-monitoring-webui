@@ -13,9 +13,9 @@
 
   .sim-management-label-title { @include rem-fallback(padding, 12px, 0px); }
 
-  .sim-management-label-desctiption {
+  .sim-management-label-description {
     white-space: pre-wrap;
-    @include rem-fallback(padding, 16px, 0px);
+    @include rem-fallback(padding-top, 16px);
   }
 
   .sim-management-selector {
@@ -24,10 +24,10 @@
     width: 100%;
     border-bottom-style: solid;
     border-bottom-width: 1px;
-    padding-bottom: 44px;
+    @include rem-fallback(padding-bottom, 44px);
   }
 
-  .btn-toolbar { @include rem-fallback(padding-top, 44px); }
+  .btn-toolbar { @include rem-fallback(padding-top, 20px); }
 
   .sim-management-label-selector {
     width: 50%;
