@@ -4,12 +4,15 @@ import React from 'react';
 import { Trans } from 'react-i18next';
 import { Link } from 'react-router-dom'
 
+import { permissions } from 'services/models';
+
 import { LinkedComponent, svgs } from 'utilities';
 
 import {
   FormControl,
   Btn,
-  BtnToolbar
+  BtnToolbar,
+  Protected
 } from 'components/shared';
 
 import Flyout from 'components/shared/flyout';
@@ -55,37 +58,39 @@ export class SIMManagement extends LinkedComponent {
           <Flyout.CloseBtn onClick={onClose} />
         </Flyout.Header>
         <Flyout.Content className="sim-management-container">
-          <div className="sim-management-selector">
-            <div className="sim-management-label-selector">{t(`devices.flyouts.SIMManagement.provider`)}</div>
-            <div className="sim-management-dropdown">
-              <FormControl
-                type="select"
-                className="sim-management-dropdown"
-                options={options}
-                searchable={false}
-                clearable={false}
-                placeholder={t('devices.flyouts.SIMManagement.select')}
-                link={this.providerLink} />
+          <Protected permission={permissions.updateSIMManagement}>
+            <div className="sim-management-selector">
+              <div className="sim-management-label-selector">{t(`devices.flyouts.SIMManagement.provider`)}</div>
+              <div className="sim-management-dropdown">
+                <FormControl
+                  type="select"
+                  className="sim-management-dropdown"
+                  options={options}
+                  searchable={false}
+                  clearable={false}
+                  placeholder={t('devices.flyouts.SIMManagement.select')}
+                  link={this.providerLink} />
+              </div>
             </div>
-          </div>
-          {
-            !!isPending &&
-            <Section.Container className="hide-border" collapsable={false}>
-              <Section.Header>{t(`devices.flyouts.SIMManagement.summaryHeader`)}</Section.Header>
-              <Section.Content>
-                <div>{t(`devices.flyouts.SIMManagement.header.${provider}`)}</div>
-                <div className="sim-management-label-description">
-                  <Trans i18nKey={`devices.flyouts.SIMManagement.description.${provider}`}>
-                    Feature is... <Link to={simManagementUrl} target="_blank">{t(`devices.flyouts.SIMManagement.here`)}</Link> ...your account.
-                  </Trans>
-                </div>
-              </Section.Content>
-            </Section.Container>
-          }
-          <BtnToolbar>
-            {!isPending && <Btn primary={true} disabled={!provider} onClick={this.showProvider} type="submit">{t('devices.flyouts.new.apply')}</Btn>}
-            <Btn svg={svgs.cancelX} onClick={onClose}>{isPending ? t('devices.flyouts.new.close') : t('devices.flyouts.new.cancel')}</Btn>
-          </BtnToolbar>
+            {
+              !!provider &&
+              <Section.Container className="hide-border" collapsable={false}>
+                <Section.Header>{t(`devices.flyouts.SIMManagement.summaryHeader`)}</Section.Header>
+                <Section.Content>
+                  <div>{t(`devices.flyouts.SIMManagement.header.${provider}`)}</div>
+                  <div className="sim-management-label-desctiption">
+                    <Trans i18nKey={`devices.flyouts.SIMManagement.description.${provider}`}>
+                      Feature is... <Link to={simManagementUrl} target="_blank">{t(`devices.flyouts.SIMManagement.here`)}</Link> ...your account.
+                    </Trans>
+                  </div>
+                </Section.Content>
+              </Section.Container>
+            }
+            <BtnToolbar>
+              {!isPending && <Btn primary={true} disabled={!provider} onClick={this.showProvider} type="submit">{t('devices.flyouts.new.apply')}</Btn>}
+              <Btn svg={svgs.cancelX} onClick={onClose}>{isPending ? t('devices.flyouts.new.close') : t('devices.flyouts.new.cancel')}</Btn>
+            </BtnToolbar>
+          </Protected>
         </Flyout.Content>
       </Flyout.Container>
     );
